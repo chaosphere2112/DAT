@@ -372,6 +372,9 @@ class Port(object):
         self.type = type
         self.is_alias = is_alias
         self.optional = optional
+        self.default_value = None
+        self.entry_type = None
+        self.enum_values = None
         self.multiple_values = multiple_values
         self.accepts = accepts
 
@@ -453,6 +456,13 @@ class Plot(object):
         types as optional ConstantPort's.
         """
         if self.subworkflow is None:
+            # FIXME: still need to read some info for ports
+            # optional, default_value, entry_type, enum_values, widget_class
+
+            for port in self.ports:
+                if isinstance(port, ConstantPort):
+                    module = port.type
+                    port.widget_class = get_widget_class(module)
             return
 
         locator = XMLFileLocator(self.subworkflow)
@@ -535,7 +545,6 @@ class Plot(object):
 
             # Get info from the PortSpec
             currentport.default_value = None
-            currentport.enumeration = None
             try:
                 (default_type, default_value,
                  entry_type, enum_values) = read_port_specs(
